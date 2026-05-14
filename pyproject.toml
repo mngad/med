@@ -3,9 +3,9 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "markdown-editor"
+name = "med"
 version = "0.1.0"
-description = "A cross-platform, distraction-free Markdown editor with live preview"
+description = "med — a cross-platform, distraction-free Markdown editor with live preview"
 requires-python = ">=3.10"
 dependencies = [
     "PySide6>=6.6",
@@ -21,7 +21,7 @@ dev = [
 ]
 
 [project.scripts]
-markdown-editor = "markdown_editor.main:main"
+med = "med.main:main"
 
 [tool.setuptools.package-dir]
 "" = "src"

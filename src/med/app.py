@@ -28,7 +28,7 @@ from importlib import resources
 from PySide6.QtCore import Qt, Signal, QSettings, QTimer
 from PySide6.QtGui import QAction, QKeySequence, QFont, QTextCursor, QPalette
 
-from markdown_editor.renderer import markdown_to_html
+from med.renderer import markdown_to_html
 
 
 class AppWindow(QMainWindow):
@@ -324,10 +324,10 @@ class AppWindow(QMainWindow):
     def _load_resources(self) -> None:
         """Load preview CSS and app stylesheets from package resources."""
         try:
-            self._css = resources.read_text("markdown_editor.resources", "preview.css")
-            self._app_qss = resources.read_text("markdown_editor.resources", "app.qss")
+            self._css = resources.read_text("med.resources", "preview.css")
+            self._app_qss = resources.read_text("med.resources", "app.qss")
             self._app_dark_qss = resources.read_text(
-                "markdown_editor.resources", "app_dark.qss"
+                "med.resources", "app_dark.qss"
             )
         except Exception:
             self._css = ""

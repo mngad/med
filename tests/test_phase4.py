@@ -4,7 +4,7 @@ from PySide6.QtGui import QTextCursor
 import sys
 
 app = QApplication.instance() or QApplication(sys.argv)
-from markdown_editor.app import AppWindow  # noqa: E402
+from med.app import AppWindow  # noqa: E402
 
 w = AppWindow()
 keep = QTextCursor.MoveMode.KeepAnchor

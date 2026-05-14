@@ -1,7 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
-"""PyInstaller spec for the Markdown Editor desktop application.
+"""PyInstaller spec for med.
 
-Build with:  pyinstaller markdown-editor.spec
+Build with:  pyinstaller med.spec
 """
 
 import sys
@@ -17,19 +17,16 @@ _SRC = _ROOT / "src"
 
 # ── Data files ──────────────────────────────────────────────────────────────
 
-# Collect package resource files (CSS, QSS, etc.)
 datas = collect_data_files(
-    "markdown_editor",
+    "med",
     includes=["**/*.css", "**/*.qss"],
     subdir="resources",
 )
 
 # ── Hidden imports ──────────────────────────────────────────────────────────
 
-hiddenimports = collect_submodules("markdown_editor")
+hiddenimports = collect_submodules("med")
 hiddenimports += [
-    # mistletoe / pygments extras
-    "markdown_it",
     "mistletoe",
     "mistletoe.html_renderer",
     "pygments",
@@ -37,7 +34,6 @@ hiddenimports += [
     "pygments.formatters",
     "pygments.styles",
     "pygments.lexers.python",
-    # PySide6 platform plugins
     "PySide6.QtNetwork",
     "PySide6.QtPrintSupport",
     "shiboken6",
@@ -46,7 +42,7 @@ hiddenimports += [
 # ── Analysis ────────────────────────────────────────────────────────────────
 
 a = Analysis(
-    ["src/markdown_editor/main.py"],
+    ["src/med/main.py"],
     pathex=[str(_SRC)],
     binaries=[],
     datas=datas,
@@ -66,12 +62,12 @@ a = Analysis(
 if sys.platform == "darwin":
     app = BUNDLE(
         a,
-        name="Markdown Editor",
-        icon=None,  # Add an .icns path here when you have one
-        bundle_identifier="local.markdown-editor.app",
+        name="med",
+        icon=None,
+        bundle_identifier="io.mngad.med",
         version="0.1.0",
         info_plist={
-            "CFBundleName": "Markdown Editor",
+            "CFBundleName": "med",
             "CFBundleShortVersionString": "0.1.0",
             "CFBundleDocumentTypes": [
                 {
@@ -89,17 +85,16 @@ if sys.platform == "darwin":
 elif sys.platform == "win32":
     exe = EXE(
         a,
-        name="MarkdownEditor",
-        icon=None,  # Add an .ico path here when you have one
+        name="med",
+        icon=None,
         console=False,
         version="0.1.0",
     )
 
 else:
-    # Linux: single-folder output
     coll = COLLECT(
         a,
-        name="markdown-editor",
+        name="med",
         strip=False,
         upx=True,
         upx_exclude=[],

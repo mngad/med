@@ -4,7 +4,7 @@ from PySide6.QtGui import QFont
 import sys
 
 app = QApplication.instance() or QApplication(sys.argv)
-from markdown_editor.app import AppWindow  # noqa: E402
+from med.app import AppWindow  # noqa: E402
 
 # ---- 5.1: Theme detection & toggle ------------------------------------------
 

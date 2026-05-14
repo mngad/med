@@ -1,22 +1,22 @@
-"""Entry point for the Markdown Editor application."""
+"""Entry point for med."""
 
 import sys
 from pathlib import Path
 
 from PySide6.QtWidgets import QApplication
 
-from markdown_editor.app import AppWindow
+from med.app import AppWindow
 
 
 def main() -> int:
-    """Launch the Markdown Editor application.
+    """Launch med.
 
     Optionally accepts a file path as the first command-line argument.
     """
     app = QApplication(sys.argv)
-    app.setApplicationName("Markdown Editor")
-    app.setOrganizationName("markdown-editor")
-    app.setOrganizationDomain("markdown-editor.local")
+    app.setApplicationName("med")
+    app.setOrganizationName("med")
+    app.setOrganizationDomain("med.local")
 
     # Open a file passed on the command line, if any.
     file_path = None

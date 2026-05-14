@@ -3,7 +3,7 @@
 # ── Development ──────────────────────────────────────────────────────────────
 
 run:
-	python -m markdown_editor
+	python -m med
 
 # ── Linting & formatting ─────────────────────────────────────────────────────
 
@@ -17,7 +17,7 @@ format:
 # ── Packaging ────────────────────────────────────────────────────────────────
 
 build:
-	pyinstaller markdown-editor.spec
+	pyinstaller med.spec
 
 # ── Cleanup ──────────────────────────────────────────────────────────────────
 
