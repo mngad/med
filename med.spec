@@ -12,7 +12,7 @@ from PyInstaller.utils.hooks import collect_data_files, collect_submodules
 # ── Paths ───────────────────────────────────────────────────────────────────
 
 _block_cipher = None
-_ROOT = Path(__file__).resolve().parent
+_ROOT = Path(SPECPATH).resolve()
 _SRC = _ROOT / "src"
 
 # ── Data files ──────────────────────────────────────────────────────────────
@@ -59,10 +59,34 @@ a = Analysis(
 
 # ── Platform-specific bundles ───────────────────────────────────────────────
 
+pyz = PYZ(a.pure)
+
+exe = EXE(
+    pyz,
+    a.scripts,
+    [],
+    exclude_binaries=True,
+    name="med",
+    debug=False,
+    bootloader_ignore_signals=False,
+    strip=False,
+    upx=True,
+    console=False,
+)
+
 if sys.platform == "darwin":
+    coll = COLLECT(
+        exe,
+        a.binaries,
+        a.datas,
+        strip=False,
+        upx=True,
+        upx_exclude=[],
+        name="med-collect",
+    )
     app = BUNDLE(
-        a,
-        name="med",
+        coll,
+        name="med.app",
         icon=None,
         bundle_identifier="io.mngad.med",
         version="0.1.0",
@@ -83,19 +107,23 @@ if sys.platform == "darwin":
     )
 
 elif sys.platform == "win32":
-    exe = EXE(
-        a,
+    coll = COLLECT(
+        exe,
+        a.binaries,
+        a.datas,
+        strip=False,
+        upx=True,
+        upx_exclude=[],
         name="med",
-        icon=None,
-        console=False,
-        version="0.1.0",
     )
 
 else:
     coll = COLLECT(
-        a,
-        name="med",
+        exe,
+        a.binaries,
+        a.datas,
         strip=False,
         upx=True,
         upx_exclude=[],
+        name="med",
     )
