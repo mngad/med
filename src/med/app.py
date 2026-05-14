@@ -61,7 +61,7 @@ class AppWindow(QMainWindow):
         self._css: str = ""
         self._theme: str = "light"
         self._editor_font: QFont = QFont("Menlo", 13)
-        self._preview_font_family: str = "system-ui"
+        self._preview_font_family: str = "Helvetica Neue"
         self._preview_font_size: int = 15
 
         # Debounced rendering: only re-render after 150ms of idle typing.
@@ -141,7 +141,7 @@ class AppWindow(QMainWindow):
         """Create macOS-style traffic light buttons at the top-left."""
         container = QWidget(self)
         layout = QHBoxLayout(container)
-        layout.setContentsMargins(12, 12, 0, 0)
+        layout.setContentsMargins(10, 7, 0, 0)
         layout.setSpacing(8)
 
         for color_normal, color_hover, tooltip, callback in [
@@ -403,7 +403,7 @@ class AppWindow(QMainWindow):
         # --- Preview ---
         self._preview = QTextBrowser()
         self._preview.setOpenExternalLinks(True)
-        self._preview.setViewportMargins(0, 34, 0, 0)
+        self._preview.setViewportMargins(0, 44, 0, 0)
         self._splitter.addWidget(self._preview)
 
         self._splitter.setSizes([600, 600])
@@ -615,7 +615,7 @@ class AppWindow(QMainWindow):
         """Reset font controls to their default values."""
         editor_combo.setCurrentFont(QFont("Menlo", 13))
         editor_spin.setValue(13)
-        preview_combo.setCurrentFont(QFont("system-ui", 15))
+        preview_combo.setCurrentFont(QFont("Helvetica Neue", 15))
         preview_spin.setValue(15)
 
     # ------------------------------------------------------------------ #

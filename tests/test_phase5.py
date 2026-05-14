@@ -39,7 +39,7 @@ print("✓ Preview CSS includes font overrides")
 
 assert w._editor_font.family() == "Menlo"
 assert w._editor_font.pointSize() == 13
-assert w._preview_font_family == "system-ui"
+assert w._preview_font_family == "Helvetica Neue"
 assert w._preview_font_size == 15
 print("✓ Font defaults are correct")
 
@@ -51,13 +51,13 @@ pcombo = QFontComboBox()
 pspin = QSpinBox()
 combo.setCurrentFont(QFont("Arial", 20))
 spin.setValue(20)
-pcombo.setCurrentFont(QFont("Times", 20))
+pcombo.setCurrentFont(QFont("Helvetica", 20))
 pspin.setValue(20)
 
 AppWindow._reset_font_defaults(combo, spin, pcombo, pspin)
 assert combo.currentFont().family() == "Menlo"
 assert spin.value() == 13
-assert pcombo.currentFont().family() == "system-ui"
+assert pcombo.currentFont().family() == "Helvetica Neue"
 assert pspin.value() == 15
 print("✓ Font reset helper restores defaults")
 
