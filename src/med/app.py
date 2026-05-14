@@ -491,8 +491,13 @@ class AppWindow(QMainWindow):
 
         # --- Preview ---
         self._preview = QTextBrowser()
-        self._preview.setOpenExternalLinks(True)
+        self._preview.setOpenExternalLinks(False)
+        self._preview.anchorClicked.connect(self._on_link_clicked)
         self._preview.setViewportMargins(0, 44, 0, 0)
+        # Reset Qt rich-text default margins (they stack on top of CSS)
+        self._preview.document().setDefaultStyleSheet(
+            "p, li, h1, h2, h3, h4, h5, h6 { margin-top: 0; margin-bottom: 0; }"
+        )
         self._splitter.addWidget(self._preview)
 
         self._splitter.setSizes([600, 600])
