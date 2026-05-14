@@ -71,6 +71,7 @@ QSplitter::handle:hover {
 /* ---- Editor ---- */
 QPlainTextEdit {
     background-color: #ffffff;
+    color: #1a1a1a;
     border: none;
     padding: 12px;
     selection-background-color: #bdd7ee;

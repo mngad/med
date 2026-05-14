@@ -464,6 +464,15 @@ class AppWindow(QMainWindow):
         self._toolbar.addAction(self._act_code)
 
     # ------------------------------------------------------------------ #
+    #  Link handling
+    # ------------------------------------------------------------------ #
+
+    def _on_link_clicked(self, url) -> None:
+        """Open links in the system browser, prevent QTextBrowser navigation."""
+        import webbrowser
+        webbrowser.open(url.toString())
+
+    # ------------------------------------------------------------------ #
     #  Central widget: splitter → editor | preview
     # ------------------------------------------------------------------ #
 
