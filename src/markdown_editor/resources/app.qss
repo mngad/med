@@ -1,0 +1,166 @@
+/* ── App-wide stylesheet — Light theme ─────────────────────────────────── */
+
+/* ---- Window & main surfaces ---- */
+QMainWindow {
+    background-color: #f8f9fa;
+}
+
+/* ---- Menu bar ---- */
+QMenuBar {
+    background-color: #f1f3f5;
+    border-bottom: 1px solid #dee2e6;
+    padding: 2px 0;
+}
+QMenuBar::item {
+    padding: 4px 10px;
+    border-radius: 4px;
+}
+QMenuBar::item:selected {
+    background-color: #e9ecef;
+}
+QMenu {
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 4px;
+}
+QMenu::item {
+    padding: 6px 28px 6px 12px;
+    border-radius: 4px;
+}
+QMenu::item:selected {
+    background-color: #e7f5ff;
+    color: #1971c2;
+}
+QMenu::separator {
+    height: 1px;
+    background: #e9ecef;
+    margin: 4px 8px;
+}
+
+/* ---- Toolbar ---- */
+QToolBar {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    padding: 4px 8px;
+    spacing: 4px;
+}
+QToolBar QToolButton {
+    border-radius: 4px;
+    padding: 5px 10px;
+    margin: 1px;
+    font-size: 13px;
+    font-weight: 500;
+}
+QToolBar QToolButton:hover {
+    background-color: #e9ecef;
+}
+QToolBar QToolButton:pressed {
+    background-color: #dee2e6;
+}
+
+/* ---- Splitter ---- */
+QSplitter::handle {
+    background-color: #dee2e6;
+    width: 2px;
+}
+QSplitter::handle:hover {
+    background-color: #adb5bd;
+}
+
+/* ---- Editor ---- */
+QPlainTextEdit {
+    background-color: #ffffff;
+    border: none;
+    padding: 12px;
+    selection-background-color: #bdd7ee;
+    selection-color: #1a1a1a;
+}
+
+/* ---- Preview ---- */
+QTextBrowser {
+    background-color: #ffffff;
+    border: none;
+}
+
+/* ---- Scrollbars ---- */
+QScrollBar:vertical {
+    background: transparent;
+    width: 8px;
+    margin: 0;
+}
+QScrollBar::handle:vertical {
+    background: #ced4da;
+    border-radius: 4px;
+    min-height: 30px;
+}
+QScrollBar::handle:vertical:hover {
+    background: #adb5bd;
+}
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    height: 0;
+}
+QScrollBar:horizontal {
+    background: transparent;
+    height: 8px;
+}
+QScrollBar::handle:horizontal {
+    background: #ced4da;
+    border-radius: 4px;
+    min-width: 30px;
+}
+QScrollBar::handle:horizontal:hover {
+    background: #adb5bd;
+}
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
+    width: 0;
+}
+
+/* ---- Dialogs ---- */
+QDialog {
+    background-color: #ffffff;
+}
+QLabel {
+    color: #1a1a1a;
+}
+QComboBox, QFontComboBox {
+    background-color: #ffffff;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+QComboBox:hover, QFontComboBox:hover {
+    border-color: #adb5bd;
+}
+QComboBox::drop-down, QFontComboBox::drop-down {
+    border: none;
+}
+QSpinBox {
+    background-color: #ffffff;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 4px 6px;
+}
+QSpinBox:hover {
+    border-color: #adb5bd;
+}
+QPushButton {
+    background-color: #e9ecef;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 6px 16px;
+}
+QPushButton:hover {
+    background-color: #dee2e6;
+}
+QPushButton:pressed {
+    background-color: #ced4da;
+}
+
+/* ---- Message box ---- */
+QMessageBox {
+    background-color: #ffffff;
+}
+QMessageBox QLabel {
+    color: #212529;
+}
