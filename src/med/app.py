@@ -57,7 +57,7 @@ class AppWindow(QMainWindow):
         super().__init__()
         self._file_path: Optional[str] = None
         self._dirty: bool = False
-        self._current_mode: str = "split"
+        self._current_mode: str = "preview"
         self._css: str = ""
         self._theme: str = "light"
         self._editor_font: QFont = QFont("Menlo", 13)
@@ -87,6 +87,9 @@ class AppWindow(QMainWindow):
             self._load_file(file_path)
         else:
             self._new_document()
+
+        # Apply default layout mode
+        self._set_mode(self._current_mode)
 
     # ------------------------------------------------------------------ #
     #  Window geometry & chrome
@@ -278,6 +281,9 @@ class AppWindow(QMainWindow):
 
         file_menu.addSeparator()
 
+        self._act_close = QAction("&Close Window", self)
+        file_menu.addAction(self._act_close)
+
         self._act_quit = QAction("&Quit", self)
         self._act_quit.setMenuRole(QAction.QuitRole)
         file_menu.addAction(self._act_quit)
@@ -296,16 +302,17 @@ class AppWindow(QMainWindow):
 
         self._act_split = QAction("&Split View", self)
         self._act_split.setCheckable(True)
-        self._act_split.setChecked(True)
+        self._act_split.setChecked(False)
         view_menu.addAction(self._act_split)
-
-        self._act_preview_only = QAction("Preview &Only", self)
-        self._act_preview_only.setCheckable(True)
-        view_menu.addAction(self._act_preview_only)
 
         self._act_editor_only = QAction("&Focus Mode", self)
         self._act_editor_only.setCheckable(True)
         view_menu.addAction(self._act_editor_only)
+
+        self._act_preview_only = QAction("Preview &Only", self)
+        self._act_preview_only.setCheckable(True)
+        self._act_preview_only.setChecked(True)
+        view_menu.addAction(self._act_preview_only)
 
         view_menu.addSeparator()
 
@@ -424,6 +431,7 @@ class AppWindow(QMainWindow):
         self._act_open.setShortcut(QKeySequence.Open)        # Cmd/Ctrl+O
         self._act_save.setShortcut(QKeySequence.Save)        # Cmd/Ctrl+S
         self._act_save_as.setShortcut(QKeySequence("Ctrl+Shift+S"))
+        self._act_close.setShortcut(QKeySequence.Close)
         self._act_quit.setShortcut(QKeySequence.Quit)        # Cmd/Ctrl+Q
         self._act_undo.setShortcut(QKeySequence.Undo)
         self._act_redo.setShortcut(QKeySequence.Redo)
@@ -452,6 +460,7 @@ class AppWindow(QMainWindow):
         self._act_open.triggered.connect(self._open_dialog)
         self._act_save.triggered.connect(self._save)
         self._act_save_as.triggered.connect(self._save_as_dialog)
+        self._act_close.triggered.connect(self.close)
         self._act_quit.triggered.connect(self.close)
 
         # Edit actions
