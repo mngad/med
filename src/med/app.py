@@ -125,7 +125,7 @@ class AppWindow(QMainWindow):
         self._grip.raise_()
 
         # Edge-resize threshold (px)
-        self._resize_margin = 8
+        self._resize_margin = 14
 
         # Hover hint bar — faint bar when mouse is near top, indicating draggability
         self._hover_bar = QWidget(self)
