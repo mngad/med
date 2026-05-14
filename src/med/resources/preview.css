@@ -64,7 +64,7 @@ pre {
     border-radius: 6px;
     overflow-x: auto;
     font-size: 85%;
-    line-height: 1.45;
+    line-height: 1;
     margin-bottom: 16px;
 }
 pre code {
@@ -73,7 +73,7 @@ pre code {
     border-radius: 0;
     font-size: inherit;
     color: inherit;
-    line-height: 1.45;
+    line-height: 1;
 }
 
 /* ── Blockquotes ──────────────────────────────────────────────────────────── */
