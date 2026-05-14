@@ -1,8 +1,8 @@
 /* Preview pane styling — clean, readable typography */
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-                 Helvetica, Arial, sans-serif;
+    font-family: "SF Pro Display", "SF Pro Text", "Helvetica Neue",
+                 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     font-size: 15px;
     line-height: 1.7;
     color: #1a1a1a;

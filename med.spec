@@ -87,7 +87,7 @@ if sys.platform == "darwin":
     app = BUNDLE(
         coll,
         name="med.app",
-        icon=None,
+        icon="icons/med.png",
         bundle_identifier="io.mngad.med",
         version="0.1.0",
         info_plist={
