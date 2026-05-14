@@ -1,77 +1,88 @@
-/* Preview pane styling — clean, readable typography */
+/* ── GitHub-style Markdown preview ─────────────────────────────────────── */
 
 body {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 15px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                 "Helvetica Neue", Arial, sans-serif;
+    font-size: 16px;
     line-height: 1.5;
-    color: #1a1a1a;
-    max-width: 720px;
+    color: #1f2328;
+    max-width: 900px;
     margin: 24px auto;
     padding: 0 16px;
+    word-wrap: break-word;
 }
 
 /* ── Headings ────────────────────────────────────────────────────────────── */
 
 h1, h2, h3, h4, h5, h6 {
-    margin-top: 1.4em;
-    margin-bottom: 0.6em;
+    margin-top: 24px;
+    margin-bottom: 16px;
     font-weight: 600;
-    line-height: 1.3;
+    line-height: 1.25;
 }
-h1 { font-size: 1.8em; border-bottom: 1px solid #e0e0e0; padding-bottom: 0.3em; }
-h2 { font-size: 1.5em; border-bottom: 1px solid #eaeaea; padding-bottom: 0.25em; }
+h1 { font-size: 2em; padding-bottom: 0.3em; border-bottom: 1px solid #d0d7de; }
+h2 { font-size: 1.5em; padding-bottom: 0.3em; border-bottom: 1px solid #d0d7de; }
 h3 { font-size: 1.25em; }
-h4 { font-size: 1.1em; }
+h4 { font-size: 1em; }
 
-/* ── Paragraphs & text ───────────────────────────────────────────────────── */
+/* ── Paragraphs ──────────────────────────────────────────────────────────── */
 
-p { margin: 0.3em 0; }
+p { margin-top: 0; margin-bottom: 16px; }
+
+/* ── Links ───────────────────────────────────────────────────────────────── */
+
+a { color: #0969da; text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Bold / Italic ───────────────────────────────────────────────────────── */
 
 strong { font-weight: 600; }
 em { font-style: italic; }
 
-a { color: #2563eb; text-decoration: none; }
-a:hover { text-decoration: underline; }
+/* ── Lists ────────────────────────────────────────────────────────────────── */
 
-/* ── Code ─────────────────────────────────────────────────────────────────── */
+ul, ol { padding-left: 2em; margin-top: 0; margin-bottom: 16px; }
+li { margin-top: 0.25em; }
+li + li { margin-top: 0.25em; }
+
+/* ── Code (inline) ────────────────────────────────────────────────────────── */
 
 code {
-    font-family: "Menlo", "Fira Code", "JetBrains Mono", monospace;
-    font-size: 0.9em;
-    background: #f4f4f5;
-    padding: 2px 6px;
-    border-radius: 4px;
+    font-family: "Menlo", "Fira Code", "JetBrains Mono", ui-monospace,
+                 monospace;
+    font-size: 85%;
+    background-color: rgba(175, 184, 193, 0.2);
+    padding: 0.2em 0.4em;
+    border-radius: 6px;
 }
 
+/* ── Code blocks ─────────────────────────────────────────────────────────── */
+
 pre {
-    background: #1e1e2e;
-    color: #cdd6f4;
+    background-color: #f6f8fa;
     padding: 16px;
     border-radius: 6px;
     overflow-x: auto;
-    font-size: 13px;
-    line-height: 1;
+    font-size: 85%;
+    line-height: 1.45;
+    margin-bottom: 16px;
 }
 pre code {
     background: none;
     padding: 0;
     border-radius: 0;
+    font-size: inherit;
     color: inherit;
-    line-height: 1;
+    line-height: 1.45;
 }
-
-/* ── Lists ────────────────────────────────────────────────────────────────── */
-
-ul, ol { padding-left: 1.6em; margin: 0.5em 0; }
-li { margin: 0.2em 0; }
 
 /* ── Blockquotes ──────────────────────────────────────────────────────────── */
 
 blockquote {
-    border-left: 3px solid #d1d5db;
-    margin: 0.8em 0;
-    padding: 0.2em 1em;
-    color: #555;
+    border-left: 4px solid #d0d7de;
+    margin: 0 0 16px 0;
+    padding: 0 1em;
+    color: #656d76;
 }
 
 /* ── Tables ───────────────────────────────────────────────────────────────── */
@@ -79,42 +90,46 @@ blockquote {
 table {
     border-collapse: collapse;
     width: 100%;
-    margin: 1em 0;
+    margin-bottom: 16px;
 }
 th, td {
-    border: 1px solid #d4d4d8;
-    padding: 6px 12px;
+    border: 1px solid #d0d7de;
+    padding: 6px 13px;
     text-align: left;
 }
-th { background: #f4f4f5; font-weight: 600; }
+th { background-color: #f6f8fa; font-weight: 600; }
+tr:nth-child(even) { background-color: #f6f8fa; }
 
 /* ── Horizontal rules ─────────────────────────────────────────────────────── */
 
 hr {
     border: none;
-    border-top: 1px solid #e0e0e0;
-    margin: 1.5em 0;
+    height: 1px;
+    background-color: #d0d7de;
+    margin: 24px 0;
 }
 
 /* ── Images ───────────────────────────────────────────────────────────────── */
 
 img { max-width: 100%; border-radius: 4px; }
 
-/* ── Dark theme overrides ─────────────────────────────────────────────────── */
+/* ── Dark mode overrides ──────────────────────────────────────────────────── */
 
 body.dark {
-    color: #e4e4e7;
-    background-color: #18181b;
+    color: #e6edf3;
+    background-color: #0d1117;
 }
-body.dark h1 { border-bottom-color: #3f3f46; }
-body.dark h2 { border-bottom-color: #333; }
-body.dark a { color: #60a5fa; }
-body.dark code { background: #27272a; }
-body.dark pre { background: #111113; color: #cdd6f4; }
+body.dark h1, body.dark h2 { border-bottom-color: #30363d; }
+body.dark a { color: #58a6ff; }
+body.dark code { background-color: rgba(110, 118, 129, 0.4); }
+body.dark pre {
+    background-color: #161b22;
+}
 body.dark blockquote {
-    border-left-color: #444;
-    color: #a1a1aa;
+    border-left-color: #30363d;
+    color: #8b949e;
 }
-body.dark th { background: #27272a; }
-body.dark th, body.dark td { border-color: #3f3f46; }
-body.dark hr { border-top-color: #333; }
+body.dark th { background-color: #161b22; }
+body.dark th, body.dark td { border-color: #30363d; }
+body.dark tr:nth-child(even) { background-color: #161b22; }
+body.dark hr { background-color: #30363d; }

@@ -13,7 +13,7 @@ from pygments.util import ClassNotFound
 _HIGHLIGHT_FORMATTER = HtmlFormatter(
     noclasses=False,
     cssclass="highlight",
-    style="material",
+    style="friendly",
 )
 
 # Cache the generated Pygments CSS so we only compute it once.
