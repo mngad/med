@@ -28,8 +28,17 @@ from PySide6.QtWidgets import (
 )
 from importlib import resources
 
-from PySide6.QtCore import Qt, Signal, QSettings, QTimer, QPoint
-from PySide6.QtGui import QAction, QKeySequence, QFont, QTextCursor, QPalette, QMouseEvent
+from PySide6.QtCore import Qt, Signal, QSettings, QTimer, QPoint, QRectF
+from PySide6.QtGui import (
+    QAction,
+    QKeySequence,
+    QFont,
+    QTextCursor,
+    QPalette,
+    QMouseEvent,
+    QPainterPath,
+    QRegion,
+)
 
 from med.renderer import markdown_to_html
 
@@ -93,9 +102,13 @@ class AppWindow(QMainWindow):
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground, False)
 
+        # Rounded corners (macOS style)
+        self._corner_radius = 10
+
         # Window drag state
         self._dragging = False
         self._drag_position = QPoint()
+        self.setMouseTracking(True)
 
         # Traffic light buttons (macOS style)
         self._setup_traffic_lights()
@@ -103,6 +116,13 @@ class AppWindow(QMainWindow):
         # Resize grip (bottom-right corner)
         grip = QSizeGrip(self)
         grip.setFixedSize(16, 16)
+
+        # Hover hint bar — faint bar when mouse is near top, indicating draggability
+        self._hover_bar = QWidget(self)
+        self._hover_bar.setFixedHeight(40)
+        self._hover_bar.setStyleSheet("background: rgba(128, 128, 128, 0.08);")
+        self._hover_bar.hide()
+        self._hover_bar.setAttribute(Qt.WA_TransparentForMouseEvents, True)
 
         # Status bar — hidden by default, toggled via View menu
         self._status_label = QLabel("Words: 0  |  Characters: 0")
@@ -171,11 +191,21 @@ class AppWindow(QMainWindow):
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event: QMouseEvent) -> None:
-        """Move the window while dragging."""
+        """Move the window while dragging, or show/hide hover bar."""
         if self._dragging and event.buttons() == Qt.LeftButton:
             self.move(event.globalPosition().toPoint() - self._drag_position)
             event.accept()
             return
+
+        # Show faint title bar when mouse is near top edge (drag hint)
+        if event.position().y() < 50 and not self._dragging:
+            self._hover_bar.setFixedWidth(self.width())
+            self._hover_bar.show()
+            self._hover_bar.raise_()
+            self._traffic_container.raise_()
+        else:
+            self._hover_bar.hide()
+
         super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
@@ -183,6 +213,16 @@ class AppWindow(QMainWindow):
         if event.button() == Qt.LeftButton:
             self._dragging = False
         super().mouseReleaseEvent(event)
+
+    # ── Rounded corners ─────────────────────────────────────────────────────
+
+    def resizeEvent(self, event) -> None:  # type: ignore[override]
+        """Update the window mask for rounded corners on resize."""
+        super().resizeEvent(event)
+        path = QPainterPath()
+        path.addRoundedRect(QRectF(self.rect()), self._corner_radius, self._corner_radius)
+        self.setMask(QRegion(path.toFillPolygon().toPolygon()))
+        self._hover_bar.setFixedWidth(self.width())
 
     def _centre_on_screen(self) -> None:
         """Move the window to the centre of the primary screen."""
@@ -339,11 +379,13 @@ class AppWindow(QMainWindow):
         self._editor.setFont(QFont("Menlo", 13))
         self._editor.setTabStopDistance(32)
         self._editor.setLineWrapMode(QPlainTextEdit.WidgetWidth)
+        self._editor.setViewportMargins(0, 44, 0, 0)
         self._splitter.addWidget(self._editor)
 
         # --- Preview ---
         self._preview = QTextBrowser()
         self._preview.setOpenExternalLinks(True)
+        self._preview.setViewportMargins(0, 34, 0, 0)
         self._splitter.addWidget(self._preview)
 
         self._splitter.setSizes([600, 600])
