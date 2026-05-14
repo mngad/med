@@ -122,7 +122,7 @@ class AppWindow(QMainWindow):
 
         # Hover hint bar — faint bar when mouse is near top, indicating draggability
         self._hover_bar = QWidget(self)
-        self._hover_bar.setFixedHeight(40)
+        self._hover_bar.setFixedHeight(36)
         self._hover_bar.setStyleSheet("background: rgba(128, 128, 128, 0.08);")
         self._hover_bar.hide()
         self._hover_bar.setAttribute(Qt.WA_TransparentForMouseEvents, True)
@@ -337,7 +337,12 @@ class AppWindow(QMainWindow):
         self._toolbar.setMovable(False)
         self._toolbar.setFloatable(False)
         self.addToolBar(Qt.TopToolBarArea, self._toolbar)
-        self._toolbar.setVisible(False)  # Hidden by default, toggle via View
+        self._toolbar.setVisible(False)
+
+        # Push toolbar contents right to avoid traffic light overlap
+        spacer = QWidget()
+        spacer.setFixedWidth(68)
+        self._toolbar.addWidget(spacer)
 
         # Bold
         self._act_bold = QAction("B", self)
@@ -641,7 +646,7 @@ class AppWindow(QMainWindow):
         # Inject user-chosen preview font
         css += f"""
 body {{
-    font-family: "{self._preview_font_family}", system-ui, sans-serif !important;
+    font-family: "{self._preview_font_family}", Helvetica, Arial, sans-serif !important;
     font-size: {self._preview_font_size}px !important;
 }}
 """
