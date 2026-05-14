@@ -122,7 +122,7 @@ class AppWindow(QMainWindow):
 
         # Hover hint bar — faint bar when mouse is near top, indicating draggability
         self._hover_bar = QWidget(self)
-        self._hover_bar.setFixedHeight(36)
+        self._hover_bar.setFixedHeight(44)
         self._hover_bar.setStyleSheet("background: rgba(128, 128, 128, 0.08);")
         self._hover_bar.hide()
         self._hover_bar.setAttribute(Qt.WA_TransparentForMouseEvents, True)
