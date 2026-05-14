@@ -1,7 +1,11 @@
 """Entry point for med."""
 
+import os
 import sys
 from pathlib import Path
+
+# Suppress Qt font-population timing warnings on macOS.
+os.environ.setdefault("QT_LOGGING_RULES", "qt.qpa.fonts=false")
 
 from PySide6.QtWidgets import QApplication
 
