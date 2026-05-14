@@ -119,9 +119,13 @@ class AppWindow(QMainWindow):
         # Traffic light buttons (macOS style)
         self._setup_traffic_lights()
 
-        # Resize grip (bottom-right corner)
-        grip = QSizeGrip(self)
-        grip.setFixedSize(16, 16)
+        # Resize grip (bottom-right corner) — larger for easier grabbing
+        self._grip = QSizeGrip(self)
+        self._grip.setFixedSize(24, 24)
+        self._grip.raise_()
+
+        # Edge-resize threshold (px)
+        self._resize_margin = 8
 
         # Hover hint bar — faint bar when mouse is near top, indicating draggability
         self._hover_bar = QWidget(self)
@@ -185,9 +189,11 @@ class AppWindow(QMainWindow):
     # ── Global mouse tracking (captures moves over child widgets) ────────────
 
     def eventFilter(self, obj, event) -> bool:  # type: ignore[override]
-        """Capture mouse moves anywhere in the window for hover bar."""
+        """Capture mouse moves: cursor shape at edges + hover bar at top."""
         if event.type() == QEvent.MouseMove:
             pos = self.mapFromGlobal(event.globalPosition().toPoint())
+
+            # --- Hover bar at top ---
             if 0 < pos.y() < 50 and not self._dragging:
                 self._hover_bar.setFixedWidth(self.width())
                 self._hover_bar.show()
@@ -195,16 +201,77 @@ class AppWindow(QMainWindow):
                 self._traffic_container.raise_()
             else:
                 self._hover_bar.hide()
+
+            # --- Edge-resize cursor ---
+            edge = self._resize_edge(pos)
+            if edge == "left" or edge == "right":
+                self.setCursor(Qt.CursorShape.SizeHorCursor)
+            elif edge == "top" or edge == "bottom":
+                self.setCursor(Qt.CursorShape.SizeVerCursor)
+            elif edge == "top-left" or edge == "bottom-right":
+                self.setCursor(Qt.CursorShape.SizeFDiagCursor)
+            elif edge == "top-right" or edge == "bottom-left":
+                self.setCursor(Qt.CursorShape.SizeBDiagCursor)
+            else:
+                self.setCursor(Qt.CursorShape.ArrowCursor)
+
         return super().eventFilter(obj, event)
+
+    def _resize_edge(self, pos: QPoint) -> str | None:
+        """Return which edge the mouse is near, or None."""
+        m = self._resize_margin
+        w, h = self.width(), self.height()
+        left = pos.x() < m
+        right = pos.x() > w - m
+        top = pos.y() < m
+        bottom = pos.y() > h - m
+
+        if top and left:
+            return "top-left"
+        if top and right:
+            return "top-right"
+        if bottom and left:
+            return "bottom-left"
+        if bottom and right:
+            return "bottom-right"
+        if left:
+            return "left"
+        if right:
+            return "right"
+        if top:
+            return "top"
+        if bottom:
+            return "bottom"
+        return None
 
     # ── Window dragging ─────────────────────────────────────────────────────
 
     def mousePressEvent(self, event: QMouseEvent) -> None:
-        """Begin window drag on left-click anywhere except traffic lights."""
+        """Begin window drag or edge-resize on left-click."""
         if event.button() == Qt.LeftButton:
-            # Don't drag if clicking traffic lights (they're children)
-            child = self.childAt(event.position().toPoint())
-            if child is None or child not in self._traffic_container.findChildren(QPushButton):
+            pos = event.position().toPoint()
+            edge = self._resize_edge(pos)
+
+            # Edge resize — delegate to OS
+            if edge is not None and self.windowHandle() is not None:
+                edge_map = {
+                    "left": Qt.Edge.LeftEdge,
+                    "right": Qt.Edge.RightEdge,
+                    "top": Qt.Edge.TopEdge,
+                    "bottom": Qt.Edge.BottomEdge,
+                    "top-left": Qt.Edge.LeftEdge | Qt.Edge.TopEdge,
+                    "top-right": Qt.Edge.RightEdge | Qt.Edge.TopEdge,
+                    "bottom-left": Qt.Edge.LeftEdge | Qt.Edge.BottomEdge,
+                    "bottom-right": Qt.Edge.RightEdge | Qt.Edge.BottomEdge,
+                }
+                self.windowHandle().startSystemResize(edge_map[edge])
+                event.accept()
+                return
+
+            # Drag — don't drag if clicking traffic lights
+            child = self.childAt(pos)
+            lights = self._traffic_container.findChildren(QPushButton)
+            if child is None or child not in lights:
                 self._dragging = True
                 self._drag_position = event.globalPosition().toPoint() - self.frameGeometry().topLeft()
                 event.accept()
@@ -244,6 +311,7 @@ class AppWindow(QMainWindow):
         self._hover_bar.setFixedWidth(self.width())
         self._traffic_container.setGeometry(0, 0, self.width(), 40)
         self._traffic_container.raise_()
+        self._grip.raise_()  # Keep resize grip on top
 
     def _centre_on_screen(self) -> None:
         """Move the window to the centre of the primary screen."""
