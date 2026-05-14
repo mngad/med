@@ -28,7 +28,7 @@ from PySide6.QtWidgets import (
 )
 from importlib import resources
 
-from PySide6.QtCore import Qt, Signal, QSettings, QTimer, QPoint, QRectF
+from PySide6.QtCore import Qt, Signal, QSettings, QTimer, QPoint, QEvent
 from PySide6.QtGui import (
     QAction,
     QKeySequence,
@@ -36,8 +36,8 @@ from PySide6.QtGui import (
     QTextCursor,
     QPalette,
     QMouseEvent,
-    QPainterPath,
-    QRegion,
+    QPainter,
+    QBitmap,
 )
 
 from med.renderer import markdown_to_html
@@ -104,6 +104,9 @@ class AppWindow(QMainWindow):
 
         # Rounded corners (macOS style)
         self._corner_radius = 10
+
+        # Global mouse tracking for hover bar (mouse over child widgets)
+        QApplication.instance().installEventFilter(self)
 
         # Window drag state
         self._dragging = False
@@ -176,6 +179,21 @@ class AppWindow(QMainWindow):
         else:
             self.showMaximized()
 
+    # ── Global mouse tracking (captures moves over child widgets) ────────────
+
+    def eventFilter(self, obj, event) -> bool:  # type: ignore[override]
+        """Capture mouse moves anywhere in the window for hover bar."""
+        if event.type() == QEvent.MouseMove:
+            pos = self.mapFromGlobal(event.globalPosition().toPoint())
+            if 0 < pos.y() < 50 and not self._dragging:
+                self._hover_bar.setFixedWidth(self.width())
+                self._hover_bar.show()
+                self._hover_bar.raise_()
+                self._traffic_container.raise_()
+            else:
+                self._hover_bar.hide()
+        return super().eventFilter(obj, event)
+
     # ── Window dragging ─────────────────────────────────────────────────────
 
     def mousePressEvent(self, event: QMouseEvent) -> None:
@@ -191,21 +209,11 @@ class AppWindow(QMainWindow):
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event: QMouseEvent) -> None:
-        """Move the window while dragging, or show/hide hover bar."""
+        """Move the window while dragging."""
         if self._dragging and event.buttons() == Qt.LeftButton:
             self.move(event.globalPosition().toPoint() - self._drag_position)
             event.accept()
             return
-
-        # Show faint title bar when mouse is near top edge (drag hint)
-        if event.position().y() < 50 and not self._dragging:
-            self._hover_bar.setFixedWidth(self.width())
-            self._hover_bar.show()
-            self._hover_bar.raise_()
-            self._traffic_container.raise_()
-        else:
-            self._hover_bar.hide()
-
         super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
@@ -217,12 +225,22 @@ class AppWindow(QMainWindow):
     # ── Rounded corners ─────────────────────────────────────────────────────
 
     def resizeEvent(self, event) -> None:  # type: ignore[override]
-        """Update the window mask for rounded corners on resize."""
+        """Update antialiased rounded-corner mask and reposition chrome."""
         super().resizeEvent(event)
-        path = QPainterPath()
-        path.addRoundedRect(QRectF(self.rect()), self._corner_radius, self._corner_radius)
-        self.setMask(QRegion(path.toFillPolygon().toPolygon()))
+        r = self._corner_radius
+        bitmap = QBitmap(self.size())
+        bitmap.fill(Qt.GlobalColor.color0)
+        p = QPainter(bitmap)
+        p.setRenderHint(QPainter.RenderHint.Antialiasing)
+        p.setBrush(Qt.GlobalColor.color1)
+        p.setPen(Qt.PenStyle.NoPen)
+        p.drawRoundedRect(self.rect(), r, r)
+        p.end()
+        self.setMask(bitmap)
+
         self._hover_bar.setFixedWidth(self.width())
+        self._traffic_container.setGeometry(0, 0, self.width(), 40)
+        self._traffic_container.raise_()
 
     def _centre_on_screen(self) -> None:
         """Move the window to the centre of the primary screen."""
