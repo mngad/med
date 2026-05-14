@@ -728,7 +728,7 @@ class AppWindow(QMainWindow):
         if not md_text.strip():
             self._preview.clear()
             return
-        html = markdown_to_html(md_text, css=self._preview_css())
+        html = markdown_to_html(md_text, css=self._preview_css(), dark=self._theme == "dark")
         self._preview.setHtml(html)
 
     def _preview_css(self) -> str:

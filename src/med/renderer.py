@@ -9,28 +9,42 @@ from pygments.formatters import HtmlFormatter
 from pygments.lexers import get_lexer_by_name, guess_lexer
 from pygments.util import ClassNotFound
 
-# Shared Pygments formatter — used both during rendering and to emit CSS.
-_HIGHLIGHT_FORMATTER = HtmlFormatter(
-    noclasses=False,
-    cssclass="highlight",
-    style="friendly",
-)
+# Cache for Pygments formatters and CSS — one per theme.
+_FORMATTERS: dict[str, HtmlFormatter] = {}
+_PYGMENTS_CSS: dict[str, str] = {}
 
-# Cache the generated Pygments CSS so we only compute it once.
-_PYGMENTS_CSS: str | None = None
+# Light theme: clean syntax on light backgrounds.
+_LIGHT_STYLE = "friendly"
+# Dark theme: GitHub-dark syntax on dark backgrounds.
+_DARK_STYLE = "github-dark"
 
 
-def _get_pygments_css() -> str:
-    """Return the Pygments CSS definitions (lazily cached)."""
-    global _PYGMENTS_CSS
-    if _PYGMENTS_CSS is None:
-        _PYGMENTS_CSS = _HIGHLIGHT_FORMATTER.get_style_defs(".highlight")
-    return _PYGMENTS_CSS
+def _get_formatter(dark: bool) -> HtmlFormatter:
+    """Return (and cache) a Pygments HtmlFormatter for the given mode."""
+    key = "dark" if dark else "light"
+    if key not in _FORMATTERS:
+        style = _DARK_STYLE if dark else _LIGHT_STYLE
+        _FORMATTERS[key] = HtmlFormatter(
+            noclasses=False,
+            cssclass="highlight",
+            style=style,
+        )
+    return _FORMATTERS[key]
+
+
+def _get_pygments_css(dark: bool) -> str:
+    """Return (and cache) the Pygments CSS for the given mode."""
+    key = "dark" if dark else "light"
+    if key not in _PYGMENTS_CSS:
+        _PYGMENTS_CSS[key] = _get_formatter(dark).get_style_defs(".highlight")
+    return _PYGMENTS_CSS[key]
 
 
 class HighlightRenderer(HTMLRenderer):
-    """Mistletoe renderer that adds Pygments syntax highlighting to
-    fenced code blocks."""
+    """Mistletoe renderer with Pygments syntax highlighting.
+
+    Reads ``_current_dark`` from the module to choose the colour scheme.
+    """
 
     def render_block_code(self, token) -> str:
         """Render a fenced code block with syntax highlighting."""
@@ -44,11 +58,16 @@ class HighlightRenderer(HTMLRenderer):
             )
         except ClassNotFound:
             lexer = guess_lexer(code)
-        highlighted = highlight(code, lexer, _HIGHLIGHT_FORMATTER)
+        highlighted = highlight(code, lexer, _get_formatter(_current_dark))
         return f'<div class="code-block">{highlighted}</div>'
 
 
-def markdown_to_html(md_text: str, css: str = "") -> str:
+# Module-level flag — mistletoe instantiates the renderer class, so we
+# communicate the theme choice through this global.
+_current_dark = False
+
+
+def markdown_to_html(md_text: str, *, css: str = "", dark: bool = False) -> str:
     """Convert Markdown text to a full, styled HTML document.
 
     Parameters
@@ -57,11 +76,15 @@ def markdown_to_html(md_text: str, css: str = "") -> str:
         Raw Markdown source.
     css:
         Optional CSS string to embed in the output.
+    dark:
+        If True, use a dark syntax-highlighting scheme.
 
     Returns
     -------
     Complete HTML string ready to display in a QTextBrowser.
     """
+    global _current_dark
+    _current_dark = dark
     body_html = mistletoe.markdown(md_text, HighlightRenderer)
 
     return f"""\
@@ -70,7 +93,7 @@ def markdown_to_html(md_text: str, css: str = "") -> str:
 <head>
 <meta charset="utf-8">
 <style>
-{_get_pygments_css()}
+{_get_pygments_css(dark)}
 {css}
 </style>
 </head>
