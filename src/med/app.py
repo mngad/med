@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 from typing import Optional
 
@@ -22,12 +21,15 @@ from PySide6.QtWidgets import (
     QSpinBox,
     QLabel,
     QVBoxLayout,
+    QHBoxLayout,
     QPushButton,
+    QSizeGrip,
+    QWidget,
 )
 from importlib import resources
 
-from PySide6.QtCore import Qt, Signal, QSettings, QTimer
-from PySide6.QtGui import QAction, QKeySequence, QFont, QTextCursor, QPalette
+from PySide6.QtCore import Qt, Signal, QSettings, QTimer, QPoint
+from PySide6.QtGui import QAction, QKeySequence, QFont, QTextCursor, QPalette, QMouseEvent
 
 from med.renderer import markdown_to_html
 
@@ -83,13 +85,24 @@ class AppWindow(QMainWindow):
 
     def _setup_window(self) -> None:
         """Configure window title, size, and chrome."""
-        self.setWindowTitle("Untitled — med")
+        self.setWindowTitle("med")
         self.resize(1200, 800)
         self._centre_on_screen()
 
-        # macOS: merge toolbar into title bar (Safari / QuickTime style)
-        if sys.platform == "darwin":
-            self.setUnifiedTitleAndToolBarOnMac(True)
+        # Frameless window — custom chrome
+        self.setWindowFlags(Qt.FramelessWindowHint)
+        self.setAttribute(Qt.WA_TranslucentBackground, False)
+
+        # Window drag state
+        self._dragging = False
+        self._drag_position = QPoint()
+
+        # Traffic light buttons (macOS style)
+        self._setup_traffic_lights()
+
+        # Resize grip (bottom-right corner)
+        grip = QSizeGrip(self)
+        grip.setFixedSize(16, 16)
 
         # Status bar — hidden by default, toggled via View menu
         self._status_label = QLabel("Words: 0  |  Characters: 0")
@@ -100,6 +113,76 @@ class AppWindow(QMainWindow):
         self._act_toggle_status.setCheckable(True)
         self._act_toggle_status.setChecked(False)
         self._act_toggle_status.toggled.connect(self.statusBar().setVisible)
+
+    def _setup_traffic_lights(self) -> None:
+        """Create macOS-style traffic light buttons at the top-left."""
+        container = QWidget(self)
+        layout = QHBoxLayout(container)
+        layout.setContentsMargins(12, 12, 0, 0)
+        layout.setSpacing(8)
+
+        for color_normal, color_hover, tooltip, callback in [
+            ("#ff5f57", "#e0443e", "Close", self.close),
+            ("#febc2e", "#d4a01c", "Minimize", self.showMinimized),
+            ("#28c840", "#1ea831", "Zoom", self._toggle_maximize),
+        ]:
+            btn = QPushButton()
+            btn.setFixedSize(12, 12)
+            btn.setToolTip(tooltip)
+            btn.setStyleSheet(f"""
+                QPushButton {{
+                    background-color: {color_normal};
+                    border: none;
+                    border-radius: 6px;
+                }}
+                QPushButton:hover {{
+                    background-color: {color_hover};
+                }}
+            """)
+            btn.clicked.connect(callback)
+            layout.addWidget(btn)
+
+        # Stretchable spacer so buttons stay top-left
+        layout.addStretch()
+
+        container.resize(self.width(), 40)
+        container.show()
+        self._traffic_container = container
+
+    def _toggle_maximize(self) -> None:
+        """Toggle maximized / normal window state."""
+        if self.isMaximized():
+            self.showNormal()
+        else:
+            self.showMaximized()
+
+    # ── Window dragging ─────────────────────────────────────────────────────
+
+    def mousePressEvent(self, event: QMouseEvent) -> None:
+        """Begin window drag on left-click anywhere except traffic lights."""
+        if event.button() == Qt.LeftButton:
+            # Don't drag if clicking traffic lights (they're children)
+            child = self.childAt(event.position().toPoint())
+            if child is None or child not in self._traffic_container.findChildren(QPushButton):
+                self._dragging = True
+                self._drag_position = event.globalPosition().toPoint() - self.frameGeometry().topLeft()
+                event.accept()
+                return
+        super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event: QMouseEvent) -> None:
+        """Move the window while dragging."""
+        if self._dragging and event.buttons() == Qt.LeftButton:
+            self.move(event.globalPosition().toPoint() - self._drag_position)
+            event.accept()
+            return
+        super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event: QMouseEvent) -> None:
+        """End window drag."""
+        if event.button() == Qt.LeftButton:
+            self._dragging = False
+        super().mouseReleaseEvent(event)
 
     def _centre_on_screen(self) -> None:
         """Move the window to the centre of the primary screen."""
@@ -288,6 +371,10 @@ class AppWindow(QMainWindow):
         self._act_bold.setShortcut(QKeySequence.Bold)
         self._act_italic.setShortcut(QKeySequence.Italic)
         self._act_link.setShortcut(QKeySequence("Ctrl+K"))
+
+        # Toolbar & status bar toggles
+        self._act_toggle_toolbar.setShortcut(QKeySequence("Ctrl+Shift+T"))
+        self._act_toggle_status.setShortcut(QKeySequence("Ctrl+Shift+B"))
 
     # ------------------------------------------------------------------ #
     #  Signal wiring
@@ -730,6 +817,7 @@ body {{
         name = Path(self._file_path).name if self._file_path else "Untitled"
         prefix = "• " if self._dirty else ""
         self.setWindowTitle(f"{prefix}{name} — med")
+        self._traffic_container.raise_()
 
     # ------------------------------------------------------------------ #
     #  Layout modes
