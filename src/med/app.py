@@ -1,7 +1,8 @@
-"""Main application window for the Markdown Editor."""
+"""Main application window for med."""
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 from typing import Optional
 
@@ -81,18 +82,23 @@ class AppWindow(QMainWindow):
     # ------------------------------------------------------------------ #
 
     def _setup_window(self) -> None:
-        """Configure window title, size, and status bar."""
-        self.setWindowTitle("Untitled — Markdown Editor")
+        """Configure window title, size, and chrome."""
+        self.setWindowTitle("Untitled — med")
         self.resize(1200, 800)
         self._centre_on_screen()
 
-        # Status bar — word / character count
+        # macOS: merge toolbar into title bar (Safari / QuickTime style)
+        if sys.platform == "darwin":
+            self.setUnifiedTitleAndToolBarOnMac(True)
+
+        # Status bar — hidden by default, toggled via View menu
         self._status_label = QLabel("Words: 0  |  Characters: 0")
         self._status_label.setStyleSheet("padding: 2px 10px; font-size: 11px;")
         self.statusBar().addPermanentWidget(self._status_label)
+        self.statusBar().setVisible(False)
         self._act_toggle_status = QAction("Show Status &Bar", self)
         self._act_toggle_status.setCheckable(True)
-        self._act_toggle_status.setChecked(True)
+        self._act_toggle_status.setChecked(False)
         self._act_toggle_status.toggled.connect(self.statusBar().setVisible)
 
     def _centre_on_screen(self) -> None:
@@ -168,10 +174,17 @@ class AppWindow(QMainWindow):
 
         view_menu.addSeparator()
 
-        self._act_preferences = QAction("&Preferences...", self)
-        view_menu.addAction(self._act_preferences)
+        self._act_toggle_toolbar = QAction("Show &Toolbar", self)
+        self._act_toggle_toolbar.setCheckable(True)
+        self._act_toggle_toolbar.setChecked(False)
+        view_menu.addAction(self._act_toggle_toolbar)
 
         view_menu.addAction(self._act_toggle_status)
+
+        view_menu.addSeparator()
+
+        self._act_preferences = QAction("&Preferences...", self)
+        view_menu.addAction(self._act_preferences)
 
     # ------------------------------------------------------------------ #
     #  Toolbar (minimal placeholder — Phase 4 will flesh this out)
@@ -183,6 +196,7 @@ class AppWindow(QMainWindow):
         self._toolbar.setMovable(False)
         self._toolbar.setFloatable(False)
         self.addToolBar(Qt.TopToolBarArea, self._toolbar)
+        self._toolbar.setVisible(False)  # Hidden by default, toggle via View
 
         # Bold
         self._act_bold = QAction("B", self)
@@ -217,7 +231,7 @@ class AppWindow(QMainWindow):
         self._toolbar.addAction(self._act_list)
 
         # Link
-        self._act_link = QAction("🔗", self)
+        self._act_link = QAction("⛓", self)
         self._act_link.setToolTip("Insert link (Cmd/Ctrl+K)")
         self._act_link.triggered.connect(self._format_link)
         self._toolbar.addAction(self._act_link)
@@ -305,6 +319,9 @@ class AppWindow(QMainWindow):
 
         # Status bar updates on content change
         self._editor.textChanged.connect(self._update_status_bar)
+
+        # Toolbar visibility toggle (deferred — _toolbar created after menus)
+        self._act_toggle_toolbar.toggled.connect(self._toolbar.setVisible)
 
         # Editor dirty tracking
         self._editor.modificationChanged.connect(self._on_modification_changed)
@@ -712,7 +729,7 @@ body {{
         """Refresh the window title based on path and dirty state."""
         name = Path(self._file_path).name if self._file_path else "Untitled"
         prefix = "• " if self._dirty else ""
-        self.setWindowTitle(f"{prefix}{name} — Markdown Editor")
+        self.setWindowTitle(f"{prefix}{name} — med")
 
     # ------------------------------------------------------------------ #
     #  Layout modes
